@@ -9,12 +9,57 @@ import os
 def doNothing():
     pass
 
+def getfile():
+    filePath = filedialog.askdirectory()
+    if filePath:
+        current_dir.set(filePath)
+        labelpath.config(state='normal')
+        labelpath.delete(0, tk.END)
+        labelpath.insert(0, filePath)
+        labelpath.config(state='readonly')
+        listFiles(filePath)
+        count = listboxItems.index("end")
+        messagebox.showinfo("Browse", f"Added {count} items")
+        print(f"directory: {filePath} — {current_dir.get()}")
+
+def listFiles(folder_path):
+    listboxItems.delete(0, tk.END)
+    for name in os.listdir(folder_path):
+        listboxItems.insert('end', name)
+
+def removeSelected():
+    selectedItem = listboxItems.curselection()
+    for index in reversed(selectedItem):
+        listboxItems.delete(index)        
+
+def addItems():
+    addFile = filedialog.askopenfiles()
+    for file in addFile:
+        filename = os.path.basename(file.name)
+        listboxItems.insert('end', filename)
+
+def clearAll():
+    count = listboxItems.index("end")
+    listboxItems.delete(0, tk.END)
+    messagebox.showinfo("Add", f"Delete {count} files from list")
+
+def showMessageBox():
+    selectedItem = listboxItems.curselection()
+    if selectedItem:
+        messagebox.showinfo("Main", f"Path:{current_dir.get()}{listboxItems.get(selectedItem)}")
+    else:
+        messagebox.showerror("Error", "No item selected")
+
+#######################################################################################################
+
 root = tk.Tk()
 
 width = 1200
 height = 800
 itemPadx = 10
 itemPady = 10
+
+current_dir = tk.StringVar()
 
 screen_width = root.winfo_screenwidth()
 screen_height = root.winfo_screenheight()
@@ -38,8 +83,10 @@ menubar = Menu(root)
 
 filemenu = Menu(menubar, tearoff=0)
 filemenu.add_command(label="New", command=doNothing)
-filemenu.add_command(label="Clear All", command=doNothing)
+filemenu.add_command(label="Clear All", command=clearAll)
+filemenu.add_separator()
 filemenu.add_command(label="Settings", command=doNothing)
+filemenu.add_separator()
 filemenu.add_command(label="Exit", command=doNothing)
 
 editmenu = Menu(menubar, tearoff=0)
@@ -51,47 +98,6 @@ root.config(menu=menubar)
 
 #######################################################################################################
 generalFont = tkFont.Font(family="Arial", size=10, weight="bold")
-#######################################################################################################
-
-def getfile():
-    filePath = filedialog.askdirectory()
-    if filePath:
-        current_dir.set(filePath)
-        labelpath.config(state='normal')
-        labelpath.delete(0, tk.END)
-        labelpath.insert(0, filePath)
-        labelpath.config(state='readonly')
-        listFiles(filePath)
-        print(f"directory: {filePath} — {current_dir.get()}")
-
-def listFiles(folder_path):
-    listboxItems.delete(0, tk.END)
-    for name in os.listdir(folder_path):
-        listboxItems.insert('end', name)
-
-def removeSelected():
-    selectedItem = listboxItems.curselection()
-    for index in reversed(selectedItem):
-        listboxItems.delete(index)
-
-def addItems():
-    addFile = filedialog.askopenfiles()
-    for file in addFile:
-        filename = os.path.basename(file.name)
-        listboxItems.insert('end', filename)
-
-def clearAll():
-    listboxItems.delete(0, tk.END)
-
-def showMessageBox():
-    selectedItem = listboxItems.curselection()
-    if selectedItem:
-        messagebox.showinfo("Main", f"Path:{current_dir.get()}{listboxItems.get(selectedItem)}")
-    else:
-        messagebox.showerror("Error", "No item selected")
-
-current_dir = tk.StringVar()
-
 #######################################################################################################
 
 leftframe = tk.LabelFrame(root, text="Convert Files", labelanchor="n", font=generalFont)
